@@ -1,0 +1,112 @@
+{
+  "info": {
+    "_postman_id": "010d155f-792e-44ca-b91a-30869dd14192",
+    "name": "DOCSIS_Titan_API_Tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "20831263"
+  },
+  "item": [
+    {
+      "name": "Happy_Path",
+      "item": [
+        {
+          "name": "GET_Valid_Device_Returns_200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Check status is 200\r\npm.test(\"Status is 200 - device found\", () => {\r\n  pm.response.to.have.status(200);\r\n});\r\n\r\n// Check response time (like your 3 sec Titan API SLA)\r\npm.test(\"Response within 3000ms\", () => {\r\n  pm.expect(pm.response.responseTime).to.be.below(3000);\r\n});\r\n\r\n// Check device data fields exist in response\r\npm.test(\"Device data fields are present\", () => {\r\n  const data = pm.response.json().data;\r\n  pm.expect(data.id).to.exist;\r\n  pm.expect(data.email).to.exist;\r\n  pm.expect(data.first_name).to.be.a(\"string\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Error_Scenarios",
+      "item": [
+        {
+          "name": "GET_Invalid_Device_Returns_404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Invalid device should return 404 not 200\r\npm.test(\"Status is 404 - device not found\", () => {\r\n  pm.response.to.have.status(404);\r\n});\r\n\r\n// Response body should be empty — no data returned\r\npm.test(\"No device data returned for invalid ID\", () => {\r\n  const body = pm.response.json();\r\n  pm.expect(Object.keys(body).length).to.eql(0);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "999"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Field_Validation",
+      "item": [
+        {
+          "name": "GET_Validate_Device_Fields",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Validate exact ID value returned\r\npm.test(\"Device ID matches requested ID\", () => {\r\n  const data = pm.response.json().data;\r\n  pm.expect(data.id).to.eql(1);\r\n});\r\n\r\n// Validate email format contains @ symbol\r\npm.test(\"Email field is valid format\", () => {\r\n  const data = pm.response.json().data;\r\n  pm.expect(data.email).to.include(\"@\");\r\n});\r\n\r\n// Validate avatar URL field is a string\r\npm.test(\"Avatar field is a string URL\", () => {\r\n  const data = pm.response.json().data;\r\n  pm.expect(data.avatar).to.be.a(\"string\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
